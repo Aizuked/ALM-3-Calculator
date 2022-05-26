@@ -6,14 +6,14 @@ import java.util.regex.Pattern;
 
 public class Calculator {
 
-    private void conditionsCheck(String exp) {
-        Pattern p = Pattern.compile("\\{");
+    private boolean conditionsCheck(String exp) {
+        Pattern p = Pattern.compile("\\(");
         Matcher m = p.matcher(exp);
         int countLeft = 0;
         while (m.find()){
             countLeft +=1;
         }
-        p = Pattern.compile("\\}");
+        p = Pattern.compile("\\)");
         m = p.matcher(exp);
 
         int countRight = 0;
@@ -23,25 +23,35 @@ public class Calculator {
 
         if (countLeft != countRight) {
             System.out.println("Unmatched parenthesis!");
-            return;
+            return false;
         }
 
         if (exp.contains(".") || exp.contains(",")) {
             System.out.println("Unsupported floating point!");
-            return;
+            return false;
         }
 
         for (String toCheck : exp.split(" ")) {
             if (!toCheck.matches("[+\\-*/]")){
+                try {
+                    Integer.valueOf(toCheck);
+                } catch (Exception e) {
+                    continue;
+                }
                 if (Integer.valueOf(toCheck) > 255) {
-                    System.out.println("Unsupported integer type!");
-                    return;
+                    System.out.println("Unsupported type!");
+                    return false;
                 }
             }
         }
+        return true;
     }
 
     public String compute(String exp) {
+        if (!conditionsCheck(exp)) {
+            System.out.println("Prematurely ended with an error");
+            return "-1";
+        }
         char[] seq = exp.toCharArray();
         Stack<Character> stack = new Stack<Character>();
         String output = "";
@@ -137,7 +147,10 @@ public class Calculator {
     }
 
     public Integer calculate(String exp1) {
-        conditionsCheck(exp1);
+        if (!conditionsCheck(exp1)) {
+            System.out.println("Prematurely ended with an error");
+            return -1;
+        }
         char[] seq1 = exp1.toCharArray();
         Stack<Integer> stack = new Stack<Integer>();
         String output = "";
